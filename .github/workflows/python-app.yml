@@ -1,6 +1,3 @@
-# This workflow will install Python dependencies, run tests and lint with a single version of Python
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
-
 name: Python application
 
 on:
@@ -13,47 +10,34 @@ permissions:
   contents: read
 
 jobs:
-  install_dependencies:
+  install-dependencies:
     runs-on: ubuntu-latest
-    concurrency:
-      group: some-group-name
+    defaults:
+      run:
+        working-directory: ./example-app
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
-      - name: Cache build venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/<path>/example-app/.venv
-          key: ${{ runner.os }}-venv
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.3
       - name: Install Poetry dependencies
         run: |
           poetry install --no-root
 
-  static_code_tests:
+  static-code-analysis:
     runs-on: ubuntu-latest
-    concurrency:
-      group: some-group-name
-    needs: install_dependencies
+    defaults:
+      run:
+        working-directory: ./example-app
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
-      - name: Cache build venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/<path>/example-app/.venv
-          key: ${{ runner.os }}-venv
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.3
       - name: Install Poetry dependencies
@@ -69,24 +53,17 @@ jobs:
         run: |
           poetry run task security
 
-  unit_tests:
+  unit-tests:
     runs-on: ubuntu-latest
-    concurrency:
-      group: some-group-name
-    needs: install_dependencies
+    defaults:
+      run:
+        working-directory: ./example-app
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
-      - name: Cache build venv
-        id: cached-poetry-dependencies
-        uses: actions/cache@v3
-        with:
-          path: /home/runner/work/<path>/example-app/.venv
-          key: ${{ runner.os }}-venv
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.3
       - name: Install Poetry dependencies
@@ -95,10 +72,3 @@ jobs:
       - name: Run unit tests
         run: |
           poetry run task test
-
-workflow:
-  jobs:
-    - install_dependencies
-    - static_code_tests
-    - unit_tests
-

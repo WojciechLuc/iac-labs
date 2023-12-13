@@ -12,45 +12,37 @@ permissions:
 jobs:
   install-dependencies:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./example-app
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.3
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pypoetry
-          key: dependencies-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            dependencies-${{ runner.os }}-
       - name: Install Poetry dependencies
         run: |
           poetry install --no-root
 
   static-code-analysis:
-    needs: install-dependencies
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./example-app
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.3
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pypoetry
-          key: dependencies-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            dependencies-${{ runner.os }}-
+      - name: Install Poetry dependencies
+        run: |
+          poetry install --no-root
       - name: Run lint
         run: |
           poetry run task lint
@@ -62,24 +54,25 @@ jobs:
           poetry run task security
 
   unit-tests:
-    needs: install-dependencies
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./example-app
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]  # Dodaj system Windows do macierzy
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
       - name: Set up Python 3.10
         uses: actions/setup-python@v3
         with:
           python-version: "3.10"
       - name: Install Poetry Action
         uses: snok/install-poetry@v1.3.3
-      - name: Cache dependencies
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/pypoetry
-          key: dependencies-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-          restore-keys: |
-            dependencies-${{ runner.os }}-
+      - name: Install Poetry dependencies
+        run: |
+          poetry install --no-root
       - name: Run unit tests
         run: |
           poetry run task test
+
